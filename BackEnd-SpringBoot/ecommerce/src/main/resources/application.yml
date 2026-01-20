@@ -13,3 +13,9 @@ spring:
       ddl-auto: update
     show-sql: true
     open-in-view: false
+
+jwt:
+  secret: mySuperSecretKey1234567890mySuperSecretKey
+  expiration: 604800000   # 1 week
+
+
