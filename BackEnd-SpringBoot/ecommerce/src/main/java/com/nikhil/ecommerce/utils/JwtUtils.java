@@ -30,9 +30,9 @@ public class JwtUtils {
     }
 
     // ✅ Generate JWT Token
-    public String generateToken(String username) {
+    public String generateToken(String email) {
         return Jwts.builder()
-                .setSubject(username)                    // username
+                .setSubject(email)                    // username
                 .setIssuedAt(new Date())                 // token creation time
                 .setExpiration(new Date(System.currentTimeMillis() + expiration)) // expiry
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256) // sign token
@@ -57,7 +57,7 @@ public class JwtUtils {
     }
 
     // ✅ Extract Username from JWT Token
-    public String extractUsername(String token) {
+    public String extractEmail(String token) {
         return extractAllClaims(token).getSubject();
     }
 

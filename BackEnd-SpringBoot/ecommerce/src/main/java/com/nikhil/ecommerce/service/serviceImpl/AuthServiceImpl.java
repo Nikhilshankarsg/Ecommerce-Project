@@ -23,16 +23,16 @@ public class AuthServiceImpl implements AuthServiceInterface{
 	@Override
 	public String login(LoginRequestDto loginRequestDto) {
 		
-		UserEntity userEntity = userRepository.findByUsername(loginRequestDto.getUsername())
-		        .orElseThrow(() -> new UserNotFoundException("User not found"));
+		UserEntity userEntity = userRepository.findByEmail(loginRequestDto.getEmail())
+		        .orElseThrow(() -> new UserNotFoundException("Email not found"));
 
 		
 		if(!loginRequestDto.getPassword().equals(userEntity.getPassword())) {
-			throw new InvalidCredentialsException("Invalid Credentials");
+			throw new InvalidCredentialsException("Password is Incorrect for the Email");
 		}
 		
 		
-		return jwtUtils.generateToken(userEntity.getUsername());
+		return jwtUtils.generateToken(userEntity.getEmail());
 	}
 
 }
