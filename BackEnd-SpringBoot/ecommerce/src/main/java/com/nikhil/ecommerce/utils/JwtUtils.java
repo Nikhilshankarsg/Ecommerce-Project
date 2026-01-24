@@ -1,12 +1,17 @@
 package com.nikhil.ecommerce.utils;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 import javax.crypto.SecretKey;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
+import com.nikhil.ecommerce.exception.JwtExpiredException;
+import com.nikhil.ecommerce.exception.JwtInvalidException;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -14,6 +19,8 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 @Component
 public class JwtUtils {
@@ -28,11 +35,22 @@ public class JwtUtils {
     private SecretKey getSigningKey() {
         return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
+    
+    public List<GrantedAuthority> getAuthorities(String token) {
+        // extract role from token
+        String role = extractRole(token);  // e.g., "USER", "ADMIN"
+
+        // convert role to GrantedAuthority
+        SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + role);
+
+        return Collections.singletonList(authority);
+    }
 
     // ✅ Generate JWT Token
-    public String generateToken(String email) {
+    public String generateToken(String email, String role) {
         return Jwts.builder()
                 .setSubject(email)                    // username
+                .claim("role", role)
                 .setIssuedAt(new Date())                 // token creation time
                 .setExpiration(new Date(System.currentTimeMillis() + expiration)) // expiry
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256) // sign token
@@ -46,14 +64,12 @@ public class JwtUtils {
                 .setSigningKey(getSigningKey())
                 .build()
                 .parseClaimsJws(token); // validates token
-
             return true;
         } catch (ExpiredJwtException e) {
-            System.out.println("JWT Token expired");
+            throw new JwtExpiredException("JWT Token has expired");
         } catch (JwtException e) {
-            System.out.println("Invalid JWT Token");
+            throw new JwtInvalidException("Invalid JWT Token");
         }
-        return false;
     }
 
     // ✅ Extract Username from JWT Token
@@ -65,6 +81,11 @@ public class JwtUtils {
     public Date extractExpiration(String token) {
         return extractAllClaims(token).getExpiration();
     }
+    
+    public String extractRole(String token) {
+        return (String) extractAllClaims(token).get("role");
+    }
+
 
     // 🔍 Extract all claims
     private Claims extractAllClaims(String token) {

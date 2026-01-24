@@ -8,6 +8,16 @@ import com.nikhil.ecommerce.entity.UserEntity;
 
 public interface UserRepository extends JpaRepository<UserEntity, Long>{
 	
+	/*
+	 * For Login
+	 */
 	Optional<UserEntity> findByEmail(String email);
+	
+	/*
+	 *For SignUp
+	 */
+	boolean existsByEmail(String email);
+	
+	boolean existsByMobileNumber(String mobileNumber);
 
 }

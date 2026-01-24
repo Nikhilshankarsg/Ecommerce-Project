@@ -43,6 +43,17 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(JwtExpiredException.class)
+    public ResponseEntity<String> handleExpiredToken(JwtExpiredException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex.getMessage());
+    }
+    
+    @ExceptionHandler(JwtInvalidException.class)
+    public ResponseEntity<String> handleInvalidToken(JwtInvalidException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex.getMessage());
+    }
+
+    
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, String>> handleGeneric(Exception ex) {
 

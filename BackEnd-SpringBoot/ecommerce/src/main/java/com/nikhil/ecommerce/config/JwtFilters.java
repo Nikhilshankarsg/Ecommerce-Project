@@ -1,5 +1,4 @@
 package com.nikhil.ecommerce.config;
-import java.util.ArrayList;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -35,13 +34,9 @@ public class JwtFilters extends OncePerRequestFilter {
             if (jwtUtils.validateToken(token)) {
                 String email = jwtUtils.extractEmail(token);
 
-//                UsernamePasswordAuthenticationToken authToken =
-//                        new UsernamePasswordAuthenticationToken(
-//                                username, null, jwtUtils.getAuthorities(token));//Need to add based on roles
+               UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                               email, null, jwtUtils.getAuthorities(token));//Need to add based on roles
                 
-                UsernamePasswordAuthenticationToken authToken =
-                      new UsernamePasswordAuthenticationToken(
-                    		  email, null, new ArrayList<>());
                 		
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }
