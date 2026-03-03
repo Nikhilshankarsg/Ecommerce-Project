@@ -5,12 +5,18 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.nikhil.ecommerce.dto.LoginRequestDto;
+import com.nikhil.ecommerce.dto.SignUpRequestDto;
+import com.nikhil.ecommerce.dto.SignUpResponseDto;
 import com.nikhil.ecommerce.entity.UserEntity;
 import com.nikhil.ecommerce.exception.InvalidCredentialsException;
+import com.nikhil.ecommerce.exception.UserEmailAlreadyExistsException;
+import com.nikhil.ecommerce.exception.UserMobileAlreadyExistsException;
 import com.nikhil.ecommerce.exception.UserNotFoundException;
+import com.nikhil.ecommerce.mapper.SignUpMapper;
 import com.nikhil.ecommerce.repository.UserRepository;
 import com.nikhil.ecommerce.service.AuthServiceInterface;
 import com.nikhil.ecommerce.utils.JwtUtils;
+
 
 @Service
 public class AuthServiceImpl implements AuthServiceInterface {
@@ -39,4 +45,33 @@ public class AuthServiceImpl implements AuthServiceInterface {
         // 3️⃣ Generate JWT token
         return jwtUtils.generateToken(userEntity.getEmail(), userEntity.getRole());
     }
+
+	@Override
+	public SignUpResponseDto signup(SignUpRequestDto signUpRequestDto) {
+		
+	    if (userRepository.existsByEmail(signUpRequestDto.getEmail())) {
+	        throw new UserEmailAlreadyExistsException("Email already registered");
+	    }
+
+	    if (userRepository.existsByMobileNumber(signUpRequestDto.getMobileNumber())) {
+	        throw new UserMobileAlreadyExistsException("Mobile already registered");
+	    }
+				
+	    // Convert DTO → Entity
+	    UserEntity userEntity = SignUpMapper.userEntity(signUpRequestDto);
+	    
+	    // ✅ MOST IMPORTANT LINE (THIS WAS MISSING)
+	    userEntity.setPassword(passwordEncoder.encode(userEntity.getPassword()));
+
+	    // Save to DB
+	    UserEntity savedUser = userRepository.save(userEntity);
+	    
+	    // Convert Entity → Response DTO
+	    SignUpResponseDto signUpResponseDto = SignUpMapper.signUpResponseDto(savedUser);
+
+	    return signUpResponseDto;
+	   
+	}
+    
+    
 }

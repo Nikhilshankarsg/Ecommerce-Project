@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.nikhil.ecommerce.dto.LoginRequestDto;
 import com.nikhil.ecommerce.dto.LoginResponseDto;
+import com.nikhil.ecommerce.dto.SignUpRequestDto;
+import com.nikhil.ecommerce.dto.SignUpResponseDto;
 import com.nikhil.ecommerce.service.AuthServiceInterface;
 
 import jakarta.validation.Valid;
@@ -28,6 +30,13 @@ public class AuthController {
 		
 		return ResponseEntity.ok(new LoginResponseDto(token,"Login SuccessFull"));
 		
+	}
+	
+	@PostMapping("/signUp")
+	public ResponseEntity<SignUpResponseDto> signUp(@Valid @RequestBody SignUpRequestDto signUpRequestDto){
 		
+		SignUpResponseDto signUpResponseDto = authServiceInterface.signup(signUpRequestDto);
+
+	        return ResponseEntity.ok(signUpResponseDto);
 	}
 }
